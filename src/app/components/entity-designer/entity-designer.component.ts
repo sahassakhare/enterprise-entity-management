@@ -2,11 +2,12 @@ import { Component, Signal, computed, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiagramService } from '../../services/diagram.service';
 import { CanvasComponent } from '../canvas/canvas.component';
+import { SlidePanelComponent } from '../slide-panel/slide-panel.component';
 
 @Component({
     selector: 'app-entity-designer',
     standalone: true,
-    imports: [CommonModule, CanvasComponent],
+    imports: [CommonModule, CanvasComponent, SlidePanelComponent],
     templateUrl: './entity-designer.component.html',
     styleUrls: ['./entity-designer.component.css']
 })

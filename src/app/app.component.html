@@ -118,10 +118,10 @@
 
   <!-- Canvas Container (Relative for absolute child) -->
   <!-- Canvas -->
-  <app-canvas *ngIf="viewMode() === 'diagram'"
-    class="relative flex-1 w-full h-full bg-slate-50 overflow-hidden block"></app-canvas>
+  <app-canvas *ngIf="viewMode() === 'diagram'" class="relative flex-1 w-full h-full overflow-hidden block"
+    style="background-color: var(--canvas-bg)"></app-canvas>
 
-  <!-- Entity Designer (Orbitax Mode) -->
+  <!-- Entity Designer (Designer Mode) -->
   <app-entity-designer *ngIf="viewMode() === 'designer'"
     class="flex-1 w-full h-full block overflow-hidden"></app-entity-designer>
 

@@ -1,25 +1,33 @@
 <div class="h-full w-full flex overflow-hidden">
-    <!-- Orbitax Sidebar (Control Panel) -->
-    <aside class="w-64 bg-slate-50 border-r border-slate-200 flex flex-col z-20 shadow-sm">
-        <div class="p-4 border-b border-slate-200 bg-white">
-            <h3 class="font-bold text-slate-800 text-sm tracking-tight uppercase">Designer Controls</h3>
+    <!-- Enterprise Sidebar (Control Panel) -->
+    <aside class="w-64 border-r flex flex-col z-20 shadow-sm transition-colors duration-300"
+        style="background-color: var(--panel-bg); border-color: var(--border-color)">
+        <div class="p-4 border-b transition-colors duration-300"
+            style="background-color: var(--panel-bg); border-color: var(--border-color)">
+            <h3 class="font-bold text-sm tracking-tight uppercase" style="color: var(--text-primary)">Designer Controls
+            </h3>
         </div>
 
         <!-- Data Overlays Section -->
         <div class="p-4 space-y-4">
             <div class="space-y-2">
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data Overlays</label>
-                <div class="flex p-1 bg-slate-200 rounded-lg">
-                    <button (click)="toggleOverlay('OWNERSHIP')" [class.bg-white]="dataOverlay() === 'OWNERSHIP'"
-                        [class.shadow-sm]="dataOverlay() === 'OWNERSHIP'"
-                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all">Ownership</button>
-                    <button (click)="toggleOverlay('TAX')" [class.bg-white]="dataOverlay() === 'TAX'"
-                        [class.shadow-sm]="dataOverlay() === 'TAX'"
-                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all">Tax View</button>
+                <label class="text-[10px] font-bold uppercase tracking-widest" style="color: var(--text-secondary)">Data
+                    Overlays</label>
+                <div class="flex p-1 rounded-lg transition-colors duration-300"
+                    style="background-color: var(--border-color)">
+                    <button (click)="toggleOverlay('OWNERSHIP')"
+                        [style.background-color]="dataOverlay() === 'OWNERSHIP' ? 'var(--node-bg)' : 'transparent'"
+                        [style.color]="dataOverlay() === 'OWNERSHIP' ? 'var(--text-primary)' : 'var(--text-secondary)'"
+                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all shadow-sm">Ownership</button>
+                    <button (click)="toggleOverlay('TAX')"
+                        [style.background-color]="dataOverlay() === 'TAX' ? 'var(--node-bg)' : 'transparent'"
+                        [style.color]="dataOverlay() === 'TAX' ? 'var(--text-primary)' : 'var(--text-secondary)'"
+                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all shadow-sm">Tax
+                        View</button>
                 </div>
             </div>
 
-            <!-- Sync Status (Simulated Orbitax Integration) -->
+            <!-- Sync Status (Simulated Enterprise Integration) -->
             <div class="px-4 py-2 bg-green-50 border-y border-green-100 flex items-center justify-between">
                 <span class="text-[9px] font-bold text-green-700 uppercase tracking-tighter">Sync: Entity Tracker</span>
                 <div class="flex items-center">
@@ -30,12 +38,14 @@
 
             <!-- Filters -->
             <div class="p-4 space-y-3">
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced Filters</label>
+                <label class="text-[10px] font-bold uppercase tracking-widest"
+                    style="color: var(--text-secondary)">Advanced Filters</label>
 
                 <div class="space-y-1">
-                    <label class="text-[10px] text-slate-500 font-medium">Region</label>
+                    <label class="text-[10px] font-medium" style="color: var(--text-secondary)">Region</label>
                     <select (change)="setFilter('region', $any($event.target).value || undefined)"
-                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        class="w-full text-xs border rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors duration-300"
+                        style="background-color: var(--node-bg); color: var(--text-primary); border-color: var(--border-color)">
                         <option value="">All Regions</option>
                         <option value="Americas">Americas</option>
                         <option value="EMEA">EMEA</option>
@@ -44,9 +54,10 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-[10px] text-slate-500 font-medium">Entity Type</label>
+                    <label class="text-[10px] font-medium" style="color: var(--text-secondary)">Entity Type</label>
                     <select (change)="setFilter('type', $any($event.target).value || undefined)"
-                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        class="w-full text-xs border rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors duration-300"
+                        style="background-color: var(--node-bg); color: var(--text-primary); border-color: var(--border-color)">
                         <option value="">All Types</option>
                         <option value="Holding">Holding</option>
                         <option value="Subsidiary">Subsidiary</option>
@@ -57,9 +68,11 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-[10px] text-slate-500 font-medium">Pillar Two Status</label>
+                    <label class="text-[10px] font-medium" style="color: var(--text-secondary)">Pillar Two
+                        Status</label>
                     <select (change)="setFilter('pillarTwo', $any($event.target).value || undefined)"
-                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        class="w-full text-xs border rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors duration-300"
+                        style="background-color: var(--node-bg); color: var(--text-primary); border-color: var(--border-color)">
                         <option value="">All Statuses</option>
                         <option value="In-Scope">In-Scope</option>
                         <option value="Safe-Harbor">Safe-Harbor</option>
@@ -89,33 +102,48 @@
         </div>
 
         <!-- Audit Trail (Historical Views) -->
-        <div class="mt-auto border-t border-slate-200">
-            <div class="p-3 bg-slate-100 flex items-center space-x-2">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mt-auto border-t transition-colors duration-300" style="border-color: var(--border-color)">
+            <div class="p-3 flex items-center space-x-2 transition-colors duration-300"
+                style="background-color: var(--canvas-bg)">
+                <svg class="w-3.5 h-3.5" style="color: var(--text-secondary)" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="2"></path>
                 </svg>
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Audit Trail</label>
+                <label class="text-[10px] font-bold uppercase tracking-widest"
+                    style="color: var(--text-secondary)">Audit Trail</label>
             </div>
-            <div class="p-4 space-y-3 bg-white max-h-48 overflow-y-auto">
+            <div class="p-4 space-y-3 max-h-48 overflow-y-auto transition-colors duration-300"
+                style="background-color: var(--panel-bg)">
                 <div class="border-l-2 border-green-500 pl-3 py-0.5">
-                    <p class="text-[10px] font-bold text-slate-800">Acquisition: Enterprise Tech Ireland</p>
-                    <p class="text-[9px] text-slate-500">2026-02-14 | User: Admin</p>
+                    <p class="text-[10px] font-bold" style="color: var(--text-primary)">Acquisition: Enterprise Tech
+                        Ireland</p>
+                    <p class="text-[9px]" style="color: var(--text-secondary)">2026-02-14 | User: Admin</p>
                 </div>
                 <div class="border-l-2 border-amber-500 pl-3 py-0.5">
-                    <p class="text-[10px] font-bold text-slate-800">Stake Change: G1 -> Hub S.a.r.l</p>
-                    <p class="text-[9px] text-slate-500">2026-01-20 | User: Tax_Mgr</p>
+                    <p class="text-[10px] font-bold" style="color: var(--text-primary)">Stake Change: G1 -> Hub S.a.r.l
+                    </p>
+                    <p class="text-[9px]" style="color: var(--text-secondary)">2026-01-20 | User: Tax_Mgr</p>
                 </div>
                 <div class="border-l-2 border-blue-500 pl-3 py-1">
-                    <p class="text-[10px] font-bold text-slate-800">FY25 Structure Snapshot</p>
-                    <p class="text-[9px] text-slate-500">2025-12-31 | Automated</p>
+                    <p class="text-[10px] font-bold" style="color: var(--text-primary)">FY25 Structure Snapshot</p>
+                    <p class="text-[9px]" style="color: var(--text-secondary)">2025-12-31 | Automated</p>
                 </div>
             </div>
         </div>
     </aside>
 
     <!-- Canvas Container -->
-    <main class="flex-1 relative bg-white h-full overflow-hidden">
-        <app-canvas class="h-full w-full block"></app-canvas>
+    <!-- Canvas Container -->
+    <main class="flex-1 relative bg-white h-full overflow-hidden flex flex-col transition-colors duration-500"
+        style="background-color: var(--canvas-bg, #f8fafc)">
+        <div class="flex-1 relative overflow-hidden">
+            <app-canvas class="h-full w-full block"></app-canvas>
+        </div>
+
+        <!-- Slide Deck Panel (Master Slides) -->
+        <div class="h-48 z-30 relative shadow-inner-lg">
+            <app-slide-panel></app-slide-panel>
+        </div>
     </main>
 </div>

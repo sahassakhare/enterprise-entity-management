@@ -14,7 +14,7 @@ export const NodeSchema = z.object({
     officers: z.array(z.string()).optional(),
     filingDueDate: z.string().optional(), // ISO Date string
     isDraft: z.boolean().optional(), // Sandbox Mode
-    // Orbitax Specific
+    // Enterprise Specific
     taxResidency: z.string().optional(),
     localCurrency: z.string().optional(),
     citRate: z.number().optional(),
@@ -50,13 +50,17 @@ export class DiagramService {
     readonly edges = signal<DiagramEdge[]>([]);
     readonly selectedNodeId = signal<string | null>(null);
     // View State
-    readonly viewMode = signal<'diagram' | 'list' | 'designer'>('diagram');
+    readonly viewMode = signal<'diagram' | 'list' | 'designer'>('designer');
     readonly coloringMode = signal<'type' | 'jurisdiction' | 'status'>('type');
     readonly highlightedPath = signal<Set<string>>(new Set());
-    // Orbitax Overlays
+    // Enterprise Overlays
     readonly dataOverlay = signal<'TAX' | 'OWNERSHIP'>('OWNERSHIP');
     readonly isJsonDrawerOpen = signal<boolean>(false);
     readonly activeFilters = signal<{ region?: string, type?: string, pillarTwo?: string }>({});
+
+    // View State Capture
+    readonly requestCapture = signal<string | null>(null);
+    readonly restoreViewState = signal<any>(null);
 
     // Sandbox State
     readonly sandboxMode = signal<boolean>(false);
@@ -75,6 +79,13 @@ export class DiagramService {
             const pillarMatch = !filters.pillarTwo || node.pillarTwoStatus === filters.pillarTwo;
             return regionMatch && typeMatch && pillarMatch;
         });
+    });
+
+    readonly filteredEdges = computed(() => {
+        const visibleNodeIds = new Set(this.filteredNodes().map(n => n.id));
+        return this.edges().filter(edge =>
+            visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)
+        );
     });
 
     constructor() {
@@ -165,7 +176,7 @@ export class DiagramService {
         }
     }
 
-    // Orbitax Hierarchy Transformation Logic
+    // Enterprise Hierarchy Transformation Logic
     loadFlatEntityList(entities: any[]) {
         const nodes: DiagramNode[] = [];
         const edges: DiagramEdge[] = [];

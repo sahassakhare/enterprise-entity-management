@@ -1,7 +1,8 @@
-import { Component, Signal, HostListener, ElementRef, ViewChild, computed, signal } from '@angular/core';
+import { Component, Signal, HostListener, ElementRef, ViewChild, computed, signal, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxGraphModule, Node, Edge } from '@swimlane/ngx-graph';
 import { DiagramService, DiagramNode, DiagramEdge } from '../../services/diagram.service';
+import { SlideDeckService } from '../../services/slide-deck.service';
 import { curveBundle } from 'd3-shape';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
@@ -45,9 +46,12 @@ export class CanvasComponent {
     view: [number, number] = [800, 600]; // Default fallback
     private resizeObserver: ResizeObserver | undefined;
 
-    constructor(private diagramService: DiagramService) {
+    constructor(
+        private diagramService: DiagramService,
+        private slideDeckService: SlideDeckService
+    ) {
         this.nodes = this.diagramService.filteredNodes;
-        this.edges = this.diagramService.edges;
+        this.edges = this.diagramService.filteredEdges;
         this.selectedNodeId = this.diagramService.selectedNodeId;
         this.highlightedPath = this.diagramService.highlightedPath;
         this.coloringMode = this.diagramService.coloringMode;
@@ -70,6 +74,70 @@ export class CanvasComponent {
 
             return Array.from(map.entries()).map(([label, color]) => ({ label, color }));
         });
+
+        // Effect: Watch for Capture Requests
+        effect(() => {
+            const captureName = this.diagramService.requestCapture();
+            if (captureName) {
+                // Wait a tick for UI to be ready if needed, or capture immediately
+                this.captureState(captureName);
+                // Reset signal to avoid loops (though in effect it might re-trigger if not careful, untracked inside capture might be safer)
+                // Better pattern: use a method that checks a flag, or just reset immediately after processing
+                setTimeout(() => this.diagramService.requestCapture.set(null), 0);
+            }
+        });
+
+        // Effect: Watch for Restore Requests
+        effect(() => {
+            const state = this.diagramService.restoreViewState();
+            if (state) {
+                this.restoreState(state);
+                setTimeout(() => this.diagramService.restoreViewState.set(null), 0);
+            }
+        });
+    }
+
+    private captureState(name: string) {
+        if (!this.canvasContainer) return;
+
+        toPng(this.canvasContainer.nativeElement, { pixelRatio: 0.5 }) // Low res for thumbnail
+            .then((thumbnail) => {
+                const viewState = {
+                    zoomLevel: this.zoomLevel(),
+                    pan: { x: 0, y: 0 }, // ngx-graph doesn't expose pan easily without accessing the component instance directly
+                    coloringMode: this.coloringMode(),
+                    activeFilters: this.diagramService.activeFilters(),
+                    selectedNodeId: this.selectedNodeId()
+                };
+
+                this.slideDeckService.addSlide({
+                    name,
+                    thumbnail,
+                    viewState
+                });
+            })
+            .catch(err => console.error('Capture failed', err));
+    }
+
+    private restoreState(state: any) {
+        // Zoom
+        if (state.zoomLevel) {
+            this.zoomLevel.set(state.zoomLevel);
+            if (state.zoomLevel !== 1) this.autoZoom.set(false);
+        }
+
+        // Filters - DiagramService handles this if we update its signals
+        if (state.activeFilters) {
+            this.diagramService.activeFilters.set(state.activeFilters);
+        }
+
+        // Coloring
+        if (state.coloringMode) {
+            this.diagramService.coloringMode.set(state.coloringMode);
+        }
+
+        // Selection
+        this.diagramService.selectedNodeId.set(state.selectedNodeId || null);
     }
 
     ngAfterViewInit() {

@@ -20,8 +20,8 @@
                 (click)="onNodeClick(node); $event.stopPropagation()">
 
                 <!-- Card Background -->
-                <svg:rect width="200" height="90" rx="4" ry="4" fill="white"
-                    [attr.stroke]="selectedNodeId() === node.id ? '#000' : (node.isDraft ? '#6366f1' : '#d1d5db')"
+                <svg:rect width="200" height="90" rx="4" ry="4"
+                    style="fill: var(--node-bg, white); stroke: var(--border-color, #d1d5db)"
                     [attr.stroke-width]="selectedNodeId() === node.id ? 2 : (node.isDraft ? 2 : 1)"
                     [attr.stroke-dasharray]="node.isDraft ? '5,5' : 'none'" class="shadow-sm"></svg:rect>
 
@@ -31,20 +31,23 @@
                     [attr.fill]="getNodeColor(node)" opacity="0.4"></svg:path>
 
                 <!-- Header Text (Label) -->
-                <svg:text x="10" y="18" font-size="11" font-weight="bold" fill="#1f2937">
+                <svg:text x="10" y="18" font-size="11" font-weight="bold" style="fill: var(--text-primary, #1f2937)">
                     {{ node.label.length > 25 ? node.label.substring(0, 25) + '...' : node.label }}
                 </svg:text>
 
                 <!-- Data Overlays (Signals) -->
                 <svg:g *ngIf="dataOverlay() === 'OWNERSHIP'">
-                    <svg:text x="10" y="45" font-size="10" font-weight="600" fill="#6b7280">OWNERSHIP</svg:text>
-                    <svg:text x="10" y="62" font-size="12" font-weight="bold" fill="#111827">
+                    <svg:text x="10" y="45" font-size="10" font-weight="600"
+                        style="fill: var(--text-secondary, #6b7280)">OWNERSHIP</svg:text>
+                    <svg:text x="10" y="62" font-size="12" font-weight="bold"
+                        style="fill: var(--text-primary, #111827)">
                         Direct: {{node.ownershipPercentage}}% | Effective: {{node.effectiveOwnership?.toFixed(1)}}%
                     </svg:text>
                 </svg:g>
 
                 <svg:g *ngIf="dataOverlay() === 'TAX'">
-                    <svg:text x="10" y="45" font-size="10" font-weight="600" fill="#059669">TAX & RESIDENCY</svg:text>
+                    <svg:text x="10" y="45" font-size="10" font-weight="600" style="fill: var(--accent-color, #059669)">
+                        TAX & RESIDENCY</svg:text>
 
                     <!-- Pillar Two Badge -->
                     <svg:g *ngIf="node.pillarTwoStatus">
@@ -59,10 +62,12 @@
                         </svg:text>
                     </svg:g>
 
-                    <svg:text x="10" y="62" font-size="12" font-weight="bold" fill="#111827">
+                    <svg:text x="10" y="62" font-size="12" font-weight="bold"
+                        style="fill: var(--text-primary, #111827)">
                         CIT: {{node.citRate}}% | {{node.taxResidency}}
                     </svg:text>
-                    <svg:text x="180" y="62" font-size="9" fill="#6b7280" text-anchor="end">{{node.localCurrency}}
+                    <svg:text x="180" y="62" font-size="9" style="fill: var(--text-secondary, #6b7280)"
+                        text-anchor="end">{{node.localCurrency}}
                     </svg:text>
                 </svg:g>
 
