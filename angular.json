@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "er-diagram-visualizer": {
+    "enterprise-entity-management": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/er-diagram-visualizer",
+            "outputPath": "dist/enterprise-entity-management",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -59,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "er-diagram-visualizer:build:production"
+              "buildTarget": "enterprise-entity-management:build:production"
             },
             "development": {
-              "buildTarget": "er-diagram-visualizer:build:development"
+              "buildTarget": "enterprise-entity-management:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -14,6 +14,7 @@ import { DiagramService } from './services/diagram.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  title = 'enterprise-entity-management';
   @ViewChild(CanvasComponent) canvasComponent!: CanvasComponent;
   viewMode: Signal<'diagram' | 'list'>;
   coloringMode: Signal<'type' | 'jurisdiction' | 'status'>;
