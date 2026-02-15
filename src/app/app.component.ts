@@ -4,23 +4,24 @@ import { CanvasComponent } from './components/canvas/canvas.component';
 import { SideDrawerComponent } from './components/side-drawer/side-drawer.component';
 import { JsonViewerComponent } from './components/json-viewer/json-viewer.component';
 import { EntityListComponent } from './components/entity-list/entity-list.component';
+import { EntityDesignerComponent } from './components/entity-designer/entity-designer.component';
 import { DiagramService } from './services/diagram.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CanvasComponent, SideDrawerComponent, JsonViewerComponent, EntityListComponent, CommonModule],
+  imports: [CanvasComponent, SideDrawerComponent, JsonViewerComponent, EntityListComponent, EntityDesignerComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'enterprise-entity-management';
   @ViewChild(CanvasComponent) canvasComponent!: CanvasComponent;
-  viewMode: Signal<'diagram' | 'list'>;
   coloringMode: Signal<'type' | 'jurisdiction' | 'status'>;
   sandboxMode: Signal<boolean>;
+  viewMode: Signal<'diagram' | 'list' | 'designer'>;
 
-  constructor(private diagramService: DiagramService) {
+  constructor(public diagramService: DiagramService) {
     this.viewMode = this.diagramService.viewMode;
     this.coloringMode = this.diagramService.coloringMode;
     this.sandboxMode = this.diagramService.sandboxMode;
@@ -83,6 +84,10 @@ export class AppComponent {
 
   exportPng() {
     this.canvasComponent.exportToPng();
+  }
+
+  toggleJsonDrawer() {
+    this.diagramService.isJsonDrawerOpen.update(v => !v);
   }
 
   onFileSelected(event: any) {

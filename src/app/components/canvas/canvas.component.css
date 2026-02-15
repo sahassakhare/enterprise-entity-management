@@ -21,3 +21,11 @@
     stroke-linecap: round;
     stroke-linejoin: round;
 }
+
+.zoom-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.zoom-btn:active {
+    transform: scale(0.95);
+}

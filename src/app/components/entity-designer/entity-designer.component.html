@@ -1,0 +1,121 @@
+<div class="h-full w-full flex overflow-hidden">
+    <!-- Orbitax Sidebar (Control Panel) -->
+    <aside class="w-64 bg-slate-50 border-r border-slate-200 flex flex-col z-20 shadow-sm">
+        <div class="p-4 border-b border-slate-200 bg-white">
+            <h3 class="font-bold text-slate-800 text-sm tracking-tight uppercase">Designer Controls</h3>
+        </div>
+
+        <!-- Data Overlays Section -->
+        <div class="p-4 space-y-4">
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data Overlays</label>
+                <div class="flex p-1 bg-slate-200 rounded-lg">
+                    <button (click)="toggleOverlay('OWNERSHIP')" [class.bg-white]="dataOverlay() === 'OWNERSHIP'"
+                        [class.shadow-sm]="dataOverlay() === 'OWNERSHIP'"
+                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all">Ownership</button>
+                    <button (click)="toggleOverlay('TAX')" [class.bg-white]="dataOverlay() === 'TAX'"
+                        [class.shadow-sm]="dataOverlay() === 'TAX'"
+                        class="flex-1 py-1.5 text-xs font-semibold rounded-md transition-all">Tax View</button>
+                </div>
+            </div>
+
+            <!-- Sync Status (Simulated Orbitax Integration) -->
+            <div class="px-4 py-2 bg-green-50 border-y border-green-100 flex items-center justify-between">
+                <span class="text-[9px] font-bold text-green-700 uppercase tracking-tighter">Sync: Entity Tracker</span>
+                <div class="flex items-center">
+                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1.5"></div>
+                    <span class="text-[10px] text-green-600 font-semibold">Live</span>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="p-4 space-y-3">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced Filters</label>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 font-medium">Region</label>
+                    <select (change)="setFilter('region', $any($event.target).value || undefined)"
+                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        <option value="">All Regions</option>
+                        <option value="Americas">Americas</option>
+                        <option value="EMEA">EMEA</option>
+                        <option value="APAC">APAC</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 font-medium">Entity Type</label>
+                    <select (change)="setFilter('type', $any($event.target).value || undefined)"
+                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        <option value="">All Types</option>
+                        <option value="Holding">Holding</option>
+                        <option value="Subsidiary">Subsidiary</option>
+                        <option value="Branch">Branch</option>
+                        <option value="Trust">Trust</option>
+                        <option value="Shell">Shell</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 font-medium">Pillar Two Status</label>
+                    <select (change)="setFilter('pillarTwo', $any($event.target).value || undefined)"
+                        class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="In-Scope">In-Scope</option>
+                        <option value="Safe-Harbor">Safe-Harbor</option>
+                        <option value="Excluded">Excluded</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-4 space-y-2">
+                <button (click)="loadSampleData()"
+                    class="w-full py-2 bg-indigo-600 text-white rounded-md text-xs font-bold hover:bg-indigo-700 transition-shadow shadow-md active:shadow-inner">
+                    Load Enterprise Sample
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button (click)="exportPdf()"
+                        class="py-2 bg-slate-800 text-white rounded-md text-[10px] font-bold hover:bg-slate-900 transition-colors shadow-sm">
+                        Export PDF
+                    </button>
+                    <button (click)="exportSvg()"
+                        class="py-2 bg-white border border-slate-300 text-slate-700 rounded-md text-[10px] font-bold hover:bg-slate-100 transition-colors shadow-sm">
+                        Export SVG
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Trail (Historical Views) -->
+        <div class="mt-auto border-t border-slate-200">
+            <div class="p-3 bg-slate-100 flex items-center space-x-2">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"></path>
+                </svg>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Audit Trail</label>
+            </div>
+            <div class="p-4 space-y-3 bg-white max-h-48 overflow-y-auto">
+                <div class="border-l-2 border-green-500 pl-3 py-0.5">
+                    <p class="text-[10px] font-bold text-slate-800">Acquisition: Enterprise Tech Ireland</p>
+                    <p class="text-[9px] text-slate-500">2026-02-14 | User: Admin</p>
+                </div>
+                <div class="border-l-2 border-amber-500 pl-3 py-0.5">
+                    <p class="text-[10px] font-bold text-slate-800">Stake Change: G1 -> Hub S.a.r.l</p>
+                    <p class="text-[9px] text-slate-500">2026-01-20 | User: Tax_Mgr</p>
+                </div>
+                <div class="border-l-2 border-blue-500 pl-3 py-1">
+                    <p class="text-[10px] font-bold text-slate-800">FY25 Structure Snapshot</p>
+                    <p class="text-[9px] text-slate-500">2025-12-31 | Automated</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Canvas Container -->
+    <main class="flex-1 relative bg-white h-full overflow-hidden">
+        <app-canvas class="h-full w-full block"></app-canvas>
+    </main>
+</div>

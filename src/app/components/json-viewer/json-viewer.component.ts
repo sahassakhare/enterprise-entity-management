@@ -11,9 +11,10 @@ import { DiagramService } from '../../services/diagram.service';
 })
 export class JsonViewerComponent {
     jsonContent: Signal<string>;
-    isOpen = true;
+    isOpen: Signal<boolean>;
 
     constructor(private diagramService: DiagramService) {
+        this.isOpen = this.diagramService.isJsonDrawerOpen;
         this.jsonContent = computed(() => {
             const data = {
                 nodes: this.diagramService.nodes(),
@@ -24,6 +25,6 @@ export class JsonViewerComponent {
     }
 
     toggle() {
-        this.isOpen = !this.isOpen;
+        this.diagramService.isJsonDrawerOpen.update(v => !v);
     }
 }

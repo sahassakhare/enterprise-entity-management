@@ -90,13 +90,26 @@
       <div class="flex items-center space-x-2">
         <button (click)="toggleViewMode()"
           class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">
-          {{ viewMode() === 'diagram' ? 'List View' : 'Diagram' }}
+          {{ viewMode() === 'diagram' ? 'Library' : (viewMode() === 'list' ? 'Designer' : 'Diagram') }}
+        </button>
+        <button (click)="diagramService.viewMode.set('designer')"
+          class="px-3 py-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded border border-indigo-500 transition-colors">
+          Designer
         </button>
         <button (click)="triggerFileInput()"
           class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">Import</button>
         <input type="file" id="fileInput" (change)="onFileSelected($event)" accept=".json" class="hidden">
         <button (click)="exportJson()"
           class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">Export</button>
+        <button (click)="toggleJsonDrawer()"
+          class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors flex items-center space-x-1"
+          [class.bg-gray-600]="diagramService.isJsonDrawerOpen()">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+          </svg>
+          <span>JSON</span>
+        </button>
         <button (click)="exportPng()" *ngIf="viewMode() === 'diagram'"
           class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded transition-colors">PNG</button>
       </div>
@@ -106,14 +119,18 @@
   <!-- Canvas Container (Relative for absolute child) -->
   <!-- Canvas -->
   <app-canvas *ngIf="viewMode() === 'diagram'"
-    class="relative flex-1 w-full bg-slate-50 overflow-hidden block"></app-canvas>
+    class="relative flex-1 w-full h-full bg-slate-50 overflow-hidden block"></app-canvas>
+
+  <!-- Entity Designer (Orbitax Mode) -->
+  <app-entity-designer *ngIf="viewMode() === 'designer'"
+    class="flex-1 w-full h-full block overflow-hidden"></app-entity-designer>
 
   <!-- Entity List -->
   <app-entity-list *ngIf="viewMode() === 'list'" class="flex-1 w-full h-full z-0 overflow-hidden"></app-entity-list>
 
   <!-- Json Viewer -->
   <app-json-viewer
-    class="absolute left-0 top-0 h-full z-20 pt-16 pointer-events-auto shadow-lg bg-white/95 backdrop-blur-md"></app-json-viewer>
+    class="absolute left-0 top-0 h-full z-20 pt-14 pointer-events-auto shadow-lg bg-white/95 backdrop-blur-md"></app-json-viewer>
 
   <!-- Side Drawer -->
   <app-side-drawer class="absolute right-0 top-0 h-full w-80 z-20"></app-side-drawer>

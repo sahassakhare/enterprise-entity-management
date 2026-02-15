@@ -7,13 +7,21 @@ export const NodeSchema = z.object({
     id: z.string(),
     label: z.string(),
     color: z.string().optional(),
-    type: z.string().optional(),
+    entityType: z.string().optional(),
     // Enterprise Enhancements
     jurisdiction: z.string().optional(),
     taxId: z.string().optional(),
     officers: z.array(z.string()).optional(),
     filingDueDate: z.string().optional(), // ISO Date string
     isDraft: z.boolean().optional(), // Sandbox Mode
+    // Orbitax Specific
+    taxResidency: z.string().optional(),
+    localCurrency: z.string().optional(),
+    citRate: z.number().optional(),
+    effectiveOwnership: z.number().optional(),
+    status: z.enum(['Active', 'Liquidation', 'Acquisition']).optional(),
+    region: z.string().optional(),
+    pillarTwoStatus: z.enum(['In-Scope', 'Excluded', 'Safe-Harbor', 'Pending', 'N/A']).optional(),
 });
 
 export const EdgeSchema = z.object({
@@ -42,9 +50,13 @@ export class DiagramService {
     readonly edges = signal<DiagramEdge[]>([]);
     readonly selectedNodeId = signal<string | null>(null);
     // View State
-    readonly viewMode = signal<'diagram' | 'list'>('diagram');
+    readonly viewMode = signal<'diagram' | 'list' | 'designer'>('diagram');
     readonly coloringMode = signal<'type' | 'jurisdiction' | 'status'>('type');
     readonly highlightedPath = signal<Set<string>>(new Set());
+    // Orbitax Overlays
+    readonly dataOverlay = signal<'TAX' | 'OWNERSHIP'>('OWNERSHIP');
+    readonly isJsonDrawerOpen = signal<boolean>(false);
+    readonly activeFilters = signal<{ region?: string, type?: string, pillarTwo?: string }>({});
 
     // Sandbox State
     readonly sandboxMode = signal<boolean>(false);
@@ -54,6 +66,16 @@ export class DiagramService {
     readonly selectedNode = computed(() =>
         this.nodes().find(n => n.id === this.selectedNodeId()) || null
     );
+
+    readonly filteredNodes = computed(() => {
+        const filters = this.activeFilters();
+        return this.nodes().filter(node => {
+            const regionMatch = !filters.region || node.region === filters.region;
+            const typeMatch = !filters.type || node.entityType === filters.type;
+            const pillarMatch = !filters.pillarTwo || node.pillarTwoStatus === filters.pillarTwo;
+            return regionMatch && typeMatch && pillarMatch;
+        });
+    });
 
     constructor() {
         // Load initial sample data for testing
@@ -143,6 +165,61 @@ export class DiagramService {
         }
     }
 
+    // Orbitax Hierarchy Transformation Logic
+    loadFlatEntityList(entities: any[]) {
+        const nodes: DiagramNode[] = [];
+        const edges: DiagramEdge[] = [];
+
+        // 1. Map to nodes
+        entities.forEach(ent => {
+            nodes.push({
+                ...ent,
+                dimension: { width: 220, height: 100 }
+            });
+
+            // 2. Create edges if parentId exists
+            if (ent.parentId) {
+                edges.push({
+                    id: `e-${ent.parentId}-${ent.id}`,
+                    source: ent.parentId,
+                    target: ent.id,
+                    label: `${ent.ownershipPercentage}%`,
+                    ownershipPercentage: ent.ownershipPercentage
+                });
+            }
+        });
+
+        // 3. Calculate Effective Ownership
+        this.calculateEffectiveOwnership(nodes, edges);
+
+        this.nodes.set(nodes);
+        this.edges.set(edges);
+    }
+
+    private calculateEffectiveOwnership(nodes: DiagramNode[], edges: DiagramEdge[]) {
+        // Simple recursive calculation for effective ownership
+        // Find roots (nodes with no parents)
+        const roots = nodes.filter(n => !edges.some(e => e.target === n.id));
+
+        roots.forEach(root => {
+            root.effectiveOwnership = 100;
+            this.propagateOwnership(root.id, 100, nodes, edges);
+        });
+    }
+
+    private propagateOwnership(parentId: string, parentEffective: number, nodes: DiagramNode[], edges: DiagramEdge[]) {
+        const childrenEdges = edges.filter(e => e.source === parentId);
+        childrenEdges.forEach(edge => {
+            const childNode = nodes.find(n => n.id === edge.target);
+            if (childNode) {
+                const directStake = edge.ownershipPercentage || 0;
+                const effectiveStake = (parentEffective * directStake) / 100;
+                childNode.effectiveOwnership = (childNode.effectiveOwnership || 0) + effectiveStake;
+                this.propagateOwnership(childNode.id, effectiveStake, nodes, edges);
+            }
+        });
+    }
+
     private tracePathToRoot(startNodeId: string) {
         const path = new Set<string>();
         const queue = [startNodeId];
@@ -173,95 +250,35 @@ export class DiagramService {
         return JSON.stringify(data, null, 2);
     }
 
-    private loadSampleData() {
-        const sample = {
-            nodes: [
-                // Top Level
-                {
-                    id: '1',
-                    label: 'ICSA Software Group Limited',
-                    type: 'Group',
-                    color: '#e2e8f0', // Light Grey
-                    jurisdiction: 'United Kingdom',
-                    officers: ['Board of Directors'],
-                    filingDueDate: '2026-12-31'
-                },
-                // Blue Circles (Subsidiaries)
-                {
-                    id: '2',
-                    label: 'ICSA Euro Ventures (Clone)',
-                    type: 'Subsidiary',
-                    color: '#bfdbfe', // Light Blue
-                    jurisdiction: 'France',
-                    officers: ['Jean Pierre'],
-                    filingDueDate: '2026-06-30'
-                },
-                {
-                    id: '3',
-                    label: 'ICSA Euro Ventures SA',
-                    type: 'Subsidiary',
-                    color: '#bfdbfe', // Light Blue
-                    jurisdiction: 'France',
-                    officers: ['Marie Curie'],
-                    filingDueDate: '2026-06-30'
-                },
-                // Pink Rectangles (UK Subsidiaries)
-                {
-                    id: '4',
-                    label: 'ICSA Software (Northern Ireland) Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'United Kingdom',
-                    filingDueDate: '2026-09-30'
-                },
-                {
-                    id: '5',
-                    label: 'ICSA Software Nominees Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'United Kingdom',
-                    filingDueDate: '2026-09-30'
-                },
-                {
-                    id: '6',
-                    label: 'ICSA Land Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'Ireland'
-                },
-                {
-                    id: '7',
-                    label: 'ICSA Properties (Cheshire) Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'United Kingdom'
-                },
-                {
-                    id: '8',
-                    label: 'ICSA Properties (Halifax) Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'United Kingdom'
-                },
-                {
-                    id: '9',
-                    label: 'ICSA Properties (Hull) Limited',
-                    type: 'Limited',
-                    color: '#fbcfe8', // Pink
-                    jurisdiction: 'United Kingdom'
-                }
-            ],
-            edges: [
-                { id: 'e1', source: '1', target: '2', label: '100%', ownershipPercentage: 100 },
-                { id: 'e2', source: '1', target: '3', label: '100%', ownershipPercentage: 100 },
-                { id: 'e3', source: '1', target: '4', label: '100%', ownershipPercentage: 100 },
-                { id: 'e4', source: '1', target: '5', label: '100%', ownershipPercentage: 100 },
-                { id: 'e5', source: '1', target: '6', label: '1%', ownershipPercentage: 1 },
-                { id: 'e6', source: '1', target: '7', label: '50%', ownershipPercentage: 50 },
-                { id: 'e7', source: '1', target: '8', label: '0%', ownershipPercentage: 0 },
-                { id: 'e8', source: '1', target: '9', label: '0%', ownershipPercentage: 0 }
-            ]
-        };
-        this.loadDiagram(sample);
+    public loadSampleData() {
+        const sampleNodes = [
+            // Level 1: Global Holding (USA)
+            { id: 'G1', label: 'Enterprise Global Holdings Inc.', entityType: 'Holding', taxResidency: 'USA', localCurrency: 'USD', pillarTwoStatus: 'In-Scope', citRate: 21, status: 'Active', ownershipPercentage: 100, region: 'Americas' },
+
+            // Level 2: Regional Hubs
+            { id: 'G2', parentId: 'G1', label: 'Enterprise EMEA Hub S.a.r.l.', entityType: 'Holding', taxResidency: 'Luxembourg', localCurrency: 'EUR', pillarTwoStatus: 'In-Scope', citRate: 24.9, status: 'Active', ownershipPercentage: 100, region: 'EMEA' },
+            { id: 'G3', parentId: 'G1', label: 'Enterprise APAC Pte Ltd.', entityType: 'Holding', taxResidency: 'Singapore', localCurrency: 'SGD', pillarTwoStatus: 'Safe-Harbor', citRate: 17, status: 'Active', ownershipPercentage: 100, region: 'APAC' },
+
+            // Level 3: EMEA Operations
+            { id: 'G4', parentId: 'G2', label: 'Enterprise Tech Ireland', entityType: 'Subsidiary', taxResidency: 'Ireland', localCurrency: 'EUR', pillarTwoStatus: 'In-Scope', citRate: 12.5, status: 'Active', ownershipPercentage: 100, region: 'EMEA' },
+            { id: 'G5', parentId: 'G2', label: 'Enterprise DE Ops GmbH', entityType: 'Subsidiary', taxResidency: 'Germany', localCurrency: 'EUR', pillarTwoStatus: 'In-Scope', citRate: 30, status: 'Active', ownershipPercentage: 90, region: 'EMEA' },
+            { id: 'G6', parentId: 'G2', label: 'Enterprise FR Trust', entityType: 'Trust', taxResidency: 'France', localCurrency: 'EUR', pillarTwoStatus: 'Excluded', citRate: 25, status: 'Active', ownershipPercentage: 100, region: 'EMEA' },
+
+            // Level 3: APAC Operations
+            { id: 'G7', parentId: 'G3', label: 'Enterprise AU Pty Ltd', entityType: 'Subsidiary', taxResidency: 'Australia', localCurrency: 'AUD', pillarTwoStatus: 'Safe-Harbor', citRate: 30, status: 'Active', ownershipPercentage: 80, region: 'APAC' },
+            { id: 'G8', parentId: 'G3', label: 'Enterprise CN Manufacturing', entityType: 'Subsidiary', taxResidency: 'China', localCurrency: 'CNY', pillarTwoStatus: 'In-Scope', citRate: 25, status: 'Active', ownershipPercentage: 100, region: 'APAC' },
+
+            // Level 4: Complex Indirects & Special Cases
+            { id: 'G9', parentId: 'G4', label: 'Enterprise UK Innovation', entityType: 'Limited', taxResidency: 'United Kingdom', localCurrency: 'GBP', pillarTwoStatus: 'Pending', citRate: 25, status: 'Acquisition', ownershipPercentage: 50, region: 'EMEA' },
+            { id: 'G10', parentId: 'G9', label: 'Enterprise IP Labs', entityType: 'Shell', taxResidency: 'Cayman Islands', localCurrency: 'USD', pillarTwoStatus: 'N/A', citRate: 0, status: 'Liquidation', ownershipPercentage: 100, region: 'EMEA' },
+            { id: 'G11', parentId: 'G5', label: 'Berlin Logistics J.V.', entityType: 'Subsidiary', taxResidency: 'Germany', localCurrency: 'EUR', pillarTwoStatus: 'In-Scope', citRate: 30, status: 'Active', ownershipPercentage: 49, region: 'EMEA' },
+            { id: 'G12', parentId: 'G8', label: 'H.K. Trading Port', entityType: 'Branch', taxResidency: 'Hong Kong', localCurrency: 'HKD', pillarTwoStatus: 'Excluded', citRate: 16.5, status: 'Active', ownershipPercentage: 100, region: 'APAC' },
+
+            // Level 5: Deep Tier
+            { id: 'G13', parentId: 'G10', label: 'Legacy Asset Pool', entityType: 'Trust', taxResidency: 'Bermuda', localCurrency: 'USD', pillarTwoStatus: 'Excluded', citRate: 0, status: 'Liquidation', ownershipPercentage: 100, region: 'EMEA' },
+            { id: 'G14', parentId: 'G7', label: 'Sydney Sales Branch', entityType: 'Branch', taxResidency: 'Australia', localCurrency: 'AUD', pillarTwoStatus: 'Safe-Harbor', citRate: 30, status: 'Active', ownershipPercentage: 100, region: 'APAC' },
+            { id: 'G15', parentId: 'G1', label: 'Enterprise LatAm Assets', entityType: 'Holding', taxResidency: 'Brazil', localCurrency: 'BRL', pillarTwoStatus: 'Pending', citRate: 34, status: 'Active', ownershipPercentage: 100, region: 'Americas' }
+        ];
+        this.loadFlatEntityList(sampleNodes);
     }
 }
