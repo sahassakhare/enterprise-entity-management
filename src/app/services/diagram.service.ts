@@ -8,7 +8,7 @@ export const NodeSchema = z.object({
     label: z.string(),
     color: z.string().optional(),
     type: z.string().optional(),
-    // Diligent Enhancements
+    // Enterprise Enhancements
     jurisdiction: z.string().optional(),
     taxId: z.string().optional(),
     officers: z.array(z.string()).optional(),
