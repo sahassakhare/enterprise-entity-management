@@ -1,0 +1,127 @@
+<div class="h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out border-l border-gray-200"
+    [class.translate-x-full]="!selectedNode()" [class.translate-x-0]="selectedNode()">
+
+    <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h2 class="text-lg font-semibold text-gray-800">Entity Details</h2>
+        <button (click)="close()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-gray-200" *ngIf="selectedNode()">
+        <button (click)="setActiveTab('general')"
+            class="flex-1 py-2 text-sm font-medium text-center focus:outline-none transition-colors"
+            [class.text-blue-600]="activeTab === 'general'" [class.border-b-2]="activeTab === 'general'"
+            [class.border-blue-600]="activeTab === 'general'" [class.text-gray-500]="activeTab !== 'general'">
+            General
+        </button>
+        <button (click)="setActiveTab('officers')"
+            class="flex-1 py-2 text-sm font-medium text-center focus:outline-none transition-colors"
+            [class.text-blue-600]="activeTab === 'officers'" [class.border-b-2]="activeTab === 'officers'"
+            [class.border-blue-600]="activeTab === 'officers'" [class.text-gray-500]="activeTab !== 'officers'">
+            Officers
+        </button>
+        <button (click)="setActiveTab('compliance')"
+            class="flex-1 py-2 text-sm font-medium text-center focus:outline-none transition-colors"
+            [class.text-blue-600]="activeTab === 'compliance'" [class.border-b-2]="activeTab === 'compliance'"
+            [class.border-blue-600]="activeTab === 'compliance'" [class.text-gray-500]="activeTab !== 'compliance'">
+            Compliance
+        </button>
+    </div>
+
+    <div class="p-6 space-y-6 flex-1 overflow-y-auto" *ngIf="selectedNode()">
+
+        <!-- General Tab -->
+        <div *ngIf="activeTab === 'general'" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Entity Name</label>
+                <input type="text" [value]="selectedNode()?.label" (input)="updateLabel($event)"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Entity Type</label>
+                <input type="text" [ngModel]="selectedNode()?.type" (ngModelChange)="updateField('type', $event)"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label
+                    class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Jurisdiction</label>
+                <input type="text" [ngModel]="selectedNode()?.jurisdiction"
+                    (ngModelChange)="updateField('jurisdiction', $event)" placeholder="e.g. Delaware"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Tax ID /
+                    EIN</label>
+                <input type="text" [ngModel]="selectedNode()?.taxId" (ngModelChange)="updateField('taxId', $event)"
+                    placeholder="XX-XXXXXXX"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Color Theme</label>
+                <div class="flex items-center space-x-3">
+                    <input type="color" [value]="selectedNode()?.color || '#ffffff'" (input)="updateColor($event)"
+                        class="h-10 w-10 border-none rounded cursor-pointer p-0 bg-transparent">
+                    <span class="text-sm text-gray-500">{{selectedNode()?.color}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Officers Tab -->
+        <div *ngIf="activeTab === 'officers'" class="space-y-4">
+            <div class="flex space-x-2">
+                <input type="text" [(ngModel)]="newOfficerName" placeholder="New Officer Name"
+                    (keyup.enter)="addOfficer()"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button (click)="addOfficer()" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Add
+                </button>
+            </div>
+
+            <ul class="divide-y divide-gray-100">
+                <li *ngFor="let officer of selectedNode()?.officers; let i = index"
+                    class="py-2 flex justify-between items-center group">
+                    <span class="text-gray-700">{{officer}}</span>
+                    <button (click)="removeOfficer(i)"
+                        class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Remove
+                    </button>
+                </li>
+                <li *ngIf="!selectedNode()?.officers?.length" class="text-gray-400 text-sm italic text-center py-4">
+                    No officers listed.
+                </li>
+            </ul>
+        </div>
+
+        <!-- Compliance Tab -->
+        <div *ngIf="activeTab === 'compliance'" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Next Filing Due
+                    Date</label>
+                <input type="date" [ngModel]="selectedNode()?.filingDueDate"
+                    (ngModelChange)="updateField('filingDueDate', $event)"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            </div>
+
+            <div class="p-4 rounded-md bg-blue-50 border border-blue-100">
+                <h4 class="text-sm font-semibold text-blue-800 mb-2">Compliance Status</h4>
+                <p class="text-xs text-blue-600">
+                    Status is automatically calculated based on the due date. Green means good standing, Red means
+                    overdue or due soon.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="p-4 border-t border-gray-100 bg-gray-50 text-xs text-center text-gray-400">
+        Auto-saved. ID: {{selectedNode()?.id}}
+    </div>
+</div>

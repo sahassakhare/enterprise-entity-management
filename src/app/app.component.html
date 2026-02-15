@@ -1,0 +1,120 @@
+<div class="relative w-screen h-screen overflow-hidden flex flex-col">
+  <!-- Diligent Header -->
+  <div class="h-14 bg-gray-800 text-white flex items-center justify-between px-4 z-30 shadow-md">
+    <div class="flex items-center space-x-4">
+      <span class="font-semibold text-lg tracking-tight">ER Diagram Visualizer</span>
+      <div class="h-6 w-px bg-gray-600 mx-2"></div>
+      <!-- Toolbar Icons -->
+      <nav class="flex space-x-1">
+        <button class="flex flex-col items-center px-3 py-1 hover:bg-gray-700 rounded transition-colors group">
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-white mb-0.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+          <span class="text-[10px] text-gray-400 group-hover:text-white">Company</span>
+        </button>
+        <button class="flex flex-col items-center px-3 py-1 hover:bg-gray-700 rounded transition-colors group">
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-white mb-0.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+            </path>
+          </svg>
+          <span class="text-[10px] text-gray-400 group-hover:text-white">Officers</span>
+        </button>
+        <button class="flex flex-col items-center px-3 py-1 hover:bg-gray-700 rounded transition-colors group">
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-white mb-0.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+          </svg>
+          <span class="text-[10px] text-gray-400 group-hover:text-white">Ownership</span>
+        </button>
+        <button
+          class="flex flex-col items-center px-3 py-1 bg-gray-700 rounded transition-colors group border-b-2 border-orange-500">
+          <svg class="w-5 h-5 text-white mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+            </path>
+          </svg>
+          <span class="text-[10px] text-white">Compliance</span>
+        </button>
+      </nav>
+      <!-- Separator -->
+      <div class="h-6 w-px bg-gray-600 mx-2"></div>
+
+      <!-- Color By Dropdown -->
+      <div class="flex items-center space-x-2">
+        <label class="text-[10px] text-gray-400 uppercase tracking-wide font-semibold">Color By</label>
+        <select [value]="coloringMode()" (change)="onColoringModeChange($event)"
+          class="bg-gray-700 text-white text-xs rounded border border-gray-600 px-2 py-1 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+          <option value="type">Type</option>
+          <option value="jurisdiction">Jurisdiction</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+
+      <!-- Sandbox Mode Toggle -->
+      <div class="flex items-center space-x-2 border-l border-gray-600 pl-2">
+        <label class="inline-flex items-center cursor-pointer">
+          <input type="checkbox" [checked]="sandboxMode()" (change)="toggleSandbox()" class="sr-only peer">
+          <div
+            class="relative w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600">
+          </div>
+          <span class="ms-2 text-[10px] font-medium text-gray-300 uppercase">Sandbox</span>
+        </label>
+      </div>
+
+      <!-- Sandbox Actions -->
+      <div *ngIf="sandboxMode()" class="flex items-center space-x-1 animate-fadeIn">
+        <button (click)="addDraftNode()"
+          class="px-2 py-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors flex items-center">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Node
+        </button>
+        <button (click)="commitSandbox()"
+          class="px-2 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded transition-colors">
+          Save
+        </button>
+        <button (click)="discardSandbox()"
+          class="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+          Discard
+        </button>
+      </div>
+
+      <!-- Functional Buttons (Moved from old toolbar) -->
+      <div class="flex items-center space-x-2">
+        <button (click)="toggleViewMode()"
+          class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">
+          {{ viewMode() === 'diagram' ? 'List View' : 'Diagram' }}
+        </button>
+        <button (click)="triggerFileInput()"
+          class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">Import</button>
+        <input type="file" id="fileInput" (change)="onFileSelected($event)" accept=".json" class="hidden">
+        <button (click)="exportJson()"
+          class="px-3 py-1 text-xs border border-gray-500 rounded hover:bg-gray-700 transition-colors">Export</button>
+        <button (click)="exportPng()" *ngIf="viewMode() === 'diagram'"
+          class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded transition-colors">PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas Container (Relative for absolute child) -->
+  <!-- Canvas -->
+  <app-canvas *ngIf="viewMode() === 'diagram'"
+    class="relative flex-1 w-full bg-slate-50 overflow-hidden block"></app-canvas>
+
+  <!-- Entity List -->
+  <app-entity-list *ngIf="viewMode() === 'list'" class="flex-1 w-full h-full z-0 overflow-hidden"></app-entity-list>
+
+  <!-- Json Viewer -->
+  <app-json-viewer
+    class="absolute left-0 top-0 h-full z-20 pt-16 pointer-events-auto shadow-lg bg-white/95 backdrop-blur-md"></app-json-viewer>
+
+  <!-- Side Drawer -->
+  <app-side-drawer class="absolute right-0 top-0 h-full w-80 z-20"></app-side-drawer>
+</div>

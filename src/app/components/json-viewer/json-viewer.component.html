@@ -1,0 +1,14 @@
+<div class="h-full bg-white shadow-md flex flex-col border-r border-gray-200 transition-all duration-300 ease-in-out"
+    [style.width.px]="isOpen ? 300 : 0" [class.opacity-0]="!isOpen" [class.width-0]="!isOpen"
+    [class.overflow-hidden]="!isOpen">
+
+    <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 flex-none">
+        <h2 class="text-sm font-semibold text-gray-700">JSON Data</h2>
+        <!-- Close button handled by outer toggle or internal close -->
+        <button (click)="toggle()" class="text-xs text-gray-400 hover:text-gray-600">Close</button>
+    </div>
+
+    <div class="flex-1 overflow-auto bg-gray-50 p-2 font-mono text-xs text-gray-800 whitespace-pre">
+        {{ jsonContent() }}
+    </div>
+</div>
